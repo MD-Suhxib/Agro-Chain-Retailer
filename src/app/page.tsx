@@ -3,6 +3,9 @@ import { Retailer } from "@/components/component/retailer";
 
 export default function Home() {
   return (
-    <Retailer/>
+    <>
+    <Retailer/> 
+    </>
+    
   );
 }
