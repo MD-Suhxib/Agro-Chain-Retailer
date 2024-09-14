@@ -3,13 +3,11 @@ import { useState } from "react";
 import { db } from '@/firebase'; 
 import { collection, query, where, getDocs } from "firebase/firestore";
 import Link from "next/link";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-
 
 interface Produce {
   id: string;
@@ -17,16 +15,15 @@ interface Produce {
   category: string;
   price: number;
   quantity: number;
-  location : string;
-  farmName : string; 
+  location: string;
+  farmName: string;
+  image: string;  
 }
 
 export function Retailer() {
   const [searchTerm, setSearchTerm] = useState("");
   const [produceData, setProduceData] = useState<Produce[]>([]);
-  const [bookedSlots, setBookedSlots] = useState<{ [key: string]: boolean }>({}); 
-
-
+  const [bookedSlots, setBookedSlots] = useState<{ [key: string]: boolean }>({});
 
   const handleSearch = async () => {
     try {
@@ -45,8 +42,8 @@ export function Retailer() {
           quantity: string;
           location?: string;
           timestamp?: string;
-          image?: string;
-          farmName : string;
+          image: string;
+          farmName: string;
         };
   
         return {
@@ -58,7 +55,7 @@ export function Retailer() {
           location: docData.location,
           timestamp: docData.timestamp,
           image: docData.image,
-          farmName : docData.farmName
+          farmName: docData.farmName
         };
       });
   
@@ -68,12 +65,19 @@ export function Retailer() {
       alert("Error fetching data. Please try again.");
     }
   };
+
   const handleBookSlot = (id: string) => {
     setBookedSlots((prev) => ({ ...prev, [id]: true }));
     alert('Your slot has been booked! Please contact the farmer.');
   };
 
-
+  const styles = {
+    image: {
+      width: '100%',
+      height: 'auto',
+      borderRadius: '8px',
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
@@ -83,7 +87,6 @@ export function Retailer() {
             <LeafIcon className="h-6 w-6 text-primary" />
             Agro-Chain
           </Link>
-          
         </div>
       </header>
 
@@ -148,30 +151,27 @@ export function Retailer() {
             {produceData.length === 0 ? (
               <p>No produce found. Try searching for something else.</p>
             ) : (
-            
-            produceData.map((produce) => (
-              <Card key={produce.id}>
-                <CardHeader>
-                  <CardTitle>{produce.farmName}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>Location: {produce.location}</p>
-                  <p>Price: ₹{produce.price.toFixed(2)}</p>
-                  <p>Available Quantity: {produce.quantity} kg</p>
-
-                  <Button
-  onClick={() => handleBookSlot(produce.id)}
-  className={`mt-4 ${bookedSlots[produce.id] ? 'bg-green-500' : ''}`} // Add margin-top 4 (1rem)
-  disabled={bookedSlots[produce.id]} 
->
-  {bookedSlots[produce.id] ? 'Slot Booked' : 'Book Slot'}
-</Button>
-
-                </CardContent>
-              </Card>
-            ))
-          )}
-            
+              produceData.map((produce) => (
+                <Card key={produce.id}>
+                  <CardHeader>
+                    <CardTitle>{produce.farmName}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <img src={produce.image} alt={produce.produceName} style={styles.image} />
+                    <p>Location: {produce.location}</p>
+                    <p>Price: ₹{produce.price.toFixed(2)}</p>
+                    <p>Available Quantity: {produce.quantity} kg</p>
+                    <Button
+                      onClick={() => handleBookSlot(produce.id)}
+                      className={`mt-4 ${bookedSlots[produce.id] ? 'bg-green-500' : ''}`}
+                      disabled={bookedSlots[produce.id]}
+                    >
+                      {bookedSlots[produce.id] ? 'Slot Booked' : 'Book Slot'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </section>
       </main>
@@ -234,8 +234,9 @@ const LeafIcon: React.FC<LeafIconProps> = (props) => {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
-      <path d="M2 6C2 3.24 4.24 1 7 1c2.21 0 4.18 1.14 5.29 2.83C13.08 3.27 15.02 2 17 2c2.74 0 5 2.26 5 5 0 5.5-4.78 10-10 10" />
+      <path d="M11 20A7 7 0 0 1 9.8 6.8l1.9-1.9A7 7 0 0 1 12 20z"></path>
+      <path d="M12 3v18"></path>
+      <path d="M3 12h18"></path>
     </svg>
   );
 };
