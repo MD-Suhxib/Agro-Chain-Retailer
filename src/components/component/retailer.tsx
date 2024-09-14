@@ -10,18 +10,23 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
-// Define the type for the produce data
+
 interface Produce {
   id: string;
   produceName: string;
   category: string;
   price: number;
   quantity: number;
+  location : string;
+  farmName : string; 
 }
 
 export function Retailer() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [produceData, setProduceData] = useState<Produce[]>([]); // Properly typed state
+  const [produceData, setProduceData] = useState<Produce[]>([]);
+  const [bookedSlots, setBookedSlots] = useState<{ [key: string]: boolean }>({}); 
+
+
 
   const handleSearch = async () => {
     try {
@@ -41,26 +46,35 @@ export function Retailer() {
           location?: string;
           timestamp?: string;
           image?: string;
+          farmName : string;
         };
   
         return {
           id: doc.id,
           produceName: docData.produceName,
           category: docData.category,
-          price: parseFloat(docData.price), // Convert price to a number
-          quantity: parseInt(docData.quantity, 10), // Convert quantity to a number
+          price: parseFloat(docData.price), 
+          quantity: parseInt(docData.quantity, 10),
           location: docData.location,
           timestamp: docData.timestamp,
-          image: docData.image
+          image: docData.image,
+          farmName : docData.farmName
         };
       });
   
-      setProduceData(data as Produce[]); // Ensure the type is correct
+      setProduceData(data as Produce[]); 
     } catch (error) {
       console.error("Error fetching produce data: ", error);
       alert("Error fetching data. Please try again.");
     }
   };
+  const handleBookSlot = (id: string) => {
+    setBookedSlots((prev) => ({ ...prev, [id]: true }));
+    alert('Your slot has been booked! Please contact the farmer.');
+  };
+
+
+
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-sm">
@@ -69,7 +83,7 @@ export function Retailer() {
             <LeafIcon className="h-6 w-6 text-primary" />
             Agro-Chain
           </Link>
-          {/* Other dropdown and account menu components */}
+          
         </div>
       </header>
 
@@ -134,19 +148,30 @@ export function Retailer() {
             {produceData.length === 0 ? (
               <p>No produce found. Try searching for something else.</p>
             ) : (
-              produceData.map((produce) => (
-                <Card key={produce.id}>
-                  <CardHeader>
-                    <CardTitle>{produce.produceName}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p>Category: {produce.category}</p>
-                    <p>Price: ${produce.price.toFixed(2)}</p>
-                    <p>Available Quantity: {produce.quantity}</p>
-                  </CardContent>
-                </Card>
-              ))
-            )}
+            
+            produceData.map((produce) => (
+              <Card key={produce.id}>
+                <CardHeader>
+                  <CardTitle>{produce.farmName}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Location: {produce.location}</p>
+                  <p>Price: ₹{produce.price.toFixed(2)}</p>
+                  <p>Available Quantity: {produce.quantity} kg</p>
+
+                  <Button
+  onClick={() => handleBookSlot(produce.id)}
+  className={`mt-4 ${bookedSlots[produce.id] ? 'bg-green-500' : ''}`} // Add margin-top 4 (1rem)
+  disabled={bookedSlots[produce.id]} 
+>
+  {bookedSlots[produce.id] ? 'Slot Booked' : 'Book Slot'}
+</Button>
+
+                </CardContent>
+              </Card>
+            ))
+          )}
+            
           </div>
         </section>
       </main>
@@ -155,7 +180,7 @@ export function Retailer() {
         <div className="container flex items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-2">
             <LeafIcon className="h-6 w-6 text-primary" />
-            <span className="text-sm text-muted-foreground">&copy; 2023 FarmFresh. All rights reserved.</span>
+            <span className="text-sm text-muted-foreground">&copy; 2024 Agro-Chain. All rights reserved.</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="#" className="text-sm text-muted-foreground hover:text-foreground" prefetch={false}>
